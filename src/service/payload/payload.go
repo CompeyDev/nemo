@@ -33,9 +33,8 @@ func DestroySelf() {
 
 func SendHeartbeat() {
 	response, error := http.Get(fmt.Sprintf("%s/heartbeat", CONNECTION_URI))
-	defer response.Body.Close()
-
 	if error != nil || response.StatusCode != 200 {
+		defer response.Body.Close()
 		logger.CustomError("PayloadService", fmt.Sprintf("Failed to send heartbeat with error %s", error.Error()))
 	} else if response.StatusCode == 200 {
 		logger.CustomInfo("PayloadService", fmt.Sprintf("Checked in with server successfully."))

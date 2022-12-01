@@ -23,7 +23,7 @@ func ConnectDB() (*db.PrismaClient, error) {
 	return client, nil
 }
 
-func createPayloadInstance(id string, name string) error {
+func CreatePayloadInstance(id string, name string) error {
 	client, connectErr := ConnectDB()
 
 	if connectErr != nil {
@@ -45,7 +45,7 @@ func createPayloadInstance(id string, name string) error {
 
 }
 
-func updateCheckInTime(id string) error {
+func UpdateCheckInTime(id string) error {
 	client, connectErr := ConnectDB()
 
 	if connectErr != nil {
@@ -54,7 +54,7 @@ func updateCheckInTime(id string) error {
 
 	ctx := context.Background()
 
-	_, err := client.PayloadClient.FindUnique(db.PayloadClient.ID.Equals(id)).Update(
+	CheckInTime, err := client.PayloadClient.FindUnique(db.PayloadClient.ID.Equals(id)).Update(
 		db.PayloadClient.ID.Set(id),
 	).Exec(ctx)
 
@@ -62,6 +62,26 @@ func updateCheckInTime(id string) error {
 		return err
 	}
 
+	logger.CustomInfo("DB_Manager", fmt.Sprintf("Payload last checked in at %s", CheckInTime))
+
 	return nil
 
+}
+
+func CheckInstanceExistence(id string) (bool, error) {
+	client, connectErr := ConnectDB()
+
+	if connectErr != nil {
+		logger.CustomError("DB_Manager", "Failed to initialize connection with SQLite database.")
+	}
+
+	ctx := context.Background()
+
+	query, err := client.PayloadClient.FindUnique(db.PayloadClient.ID.Equals(id)).Exec(ctx)
+
+	if err != nil {
+		return false, err
+	}
+
+	return (query == nil), nil
 }
