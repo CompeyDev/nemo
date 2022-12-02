@@ -11,6 +11,7 @@ prependInterface()
 
 userHistory = []
 
+# need to type again in future
 
 def helpHandler(args: [] or None = None):
     commands = {
