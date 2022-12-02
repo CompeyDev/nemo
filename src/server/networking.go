@@ -114,7 +114,8 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	type RequestBody struct {
-		Id string
+		Id   	string
+		Name 	string
 	}
 
 	var requestBody RequestBody
@@ -122,25 +123,30 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	jsonParseErr := json.NewDecoder(request.Body).Decode(&requestBody)
 
 	if jsonParseErr != nil {
-		logger.Error("POST /heartbeat -> JSON Request parsing error, Status Code 502")
+		logger.Error("POST /heartbeat -> JSON Request body parsing error, Status Code 502")
 		writer.WriteHeader(502)
 		writer.Write(jsonErrorResponse2)
 		return
 	}
 
-	instanceExists, instanceCheckingErr := database.CheckInstanceExistence(requestBody.Id)
+	// Error handling is odd, should fix in future.
 
-	if instanceCheckingErr != nil {
-		logger.Error("Failed to fetch existing payload instances from database, Status Code 502")
-		logger.Error(fmt.Sprint(instanceCheckingErr))
-		writer.WriteHeader(502)
-		writer.Write(jsonErrorResponse2)
-		return
-	}
+	// if instanceCheckingErr != nil {
+	// 	logger.Error("Failed to fetch existing payload instances from database, Status Code 502")
+	// 	logger.Error(fmt.Sprint(instanceCheckingErr))
+	// 	writer.WriteHeader(502)
+	// 	writer.Write(jsonErrorResponse2)
+	// 	return
+	// }
+	
+	instanceExists := database.CheckInstanceExistence(requestBody.Id)
 
 	if instanceExists {
 		database.UpdateCheckInTime(requestBody.Id)
+	} else if !instanceExists {
+		database.CreatePayloadInstance(requestBody.Id, requestBody.Name)
 	}
+
 
 	defer request.Body.Close()
 

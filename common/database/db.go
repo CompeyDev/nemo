@@ -80,7 +80,7 @@ func UpdateCheckInTime(id string) error {
 
 }
 
-func CheckInstanceExistence(id string) (bool, error) {
+func CheckInstanceExistence(id string) (bool) {
 	client, connectErr := ConnectDB()
 
 	if connectErr != nil {
@@ -95,10 +95,32 @@ func CheckInstanceExistence(id string) (bool, error) {
 
 	if err != nil {
 		DisconnectDB(client)
-		return false, err
+		return false
 	}
 
 	DisconnectDB(client)
 
-	return (query == nil), nil
+	return (query == nil)
+}
+
+func Test() {
+	client, connectErr := ConnectDB()
+
+	if connectErr != nil {
+		DisconnectDB(client)
+		logger.CustomError("DB_Manager", "Failed to initialize connection with SQLite database.")
+		logger.CustomError("DB_MANAGER", fmt.Sprint(connectErr))
+	}
+
+	ctx := context.Background()
+
+	CreatePayloadInstance("id_testing", "name")
+
+	d, e := client.PayloadClient.FindMany().Exec(ctx)
+
+	if e != nil {
+		fmt.Println(e)
+	}
+
+	fmt.Println(d)
 }

