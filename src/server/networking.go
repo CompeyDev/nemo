@@ -14,6 +14,7 @@ import (
 )
 
 // TODO: Use sockets instead of http
+// REDO: Fix superfluous calls.
 
 type HeartbeatResponse struct {
 	Status int            `json:"status"`
@@ -77,17 +78,22 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 		},
 	}
 
+	writer.Header().Set("Content-Type", "application/json")
+
 	jsonErrorResponse, errorMarshalErr := json.Marshal(errorResponse)
 
 	if errorMarshalErr != nil {
 		log.Fatal("POST /heartbeat -> Failed to encode response, Status Code 502")
 		writer.WriteHeader(502)
+		writer.Write(jsonErrorResponse)
+		return
 	}
 
 	if request.Body == nil {
 		logger.Error("POST /heartbeat -> No response body provided, Status Code 400")
 		writer.WriteHeader(400)
 		writer.Write(jsonErrorResponse)
+		return
 	}
 
 	errorResponse2 := HeartbeatResponse{
@@ -103,6 +109,8 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	if errorMarshalErr2 != nil {
 		logger.Error("POST /heartbeat -> Failed to encode response, Status Code 502")
 		writer.WriteHeader(502)
+		writer.Write(jsonErrorResponse2)
+		return
 	}
 
 	type RequestBody struct {
@@ -117,14 +125,17 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 		logger.Error("POST /heartbeat -> JSON Request parsing error, Status Code 502")
 		writer.WriteHeader(502)
 		writer.Write(jsonErrorResponse2)
+		return
 	}
 
 	instanceExists, instanceCheckingErr := database.CheckInstanceExistence(requestBody.Id)
 
 	if instanceCheckingErr != nil {
 		logger.Error("Failed to fetch existing payload instances from database, Status Code 502")
+		logger.Error(fmt.Sprint(instanceCheckingErr))
 		writer.WriteHeader(502)
 		writer.Write(jsonErrorResponse2)
+		return
 	}
 
 	if instanceExists {
@@ -133,11 +144,11 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 
 	defer request.Body.Close()
 
-	writer.Header().Set("Content-Type", "application/json")
-
 	if jsonParseErr != nil {
 		logger.Error("POST /heartbeat -> Failed to encode response, Status Code 502")
 		writer.WriteHeader(502)
+		writer.Write(jsonErrorResponse2)
+		return
 	}
 
 	Response := HeartbeatResponse{
@@ -153,10 +164,10 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	if jsonParseErr != nil {
 		logger.Error("POST /heartbeat -> Failed to encode response, Status Code 502")
 		writer.WriteHeader(502)
+		writer.Write(jsonErrorResponse2)
+		return
 	}
-
 	writer.WriteHeader(200)
-	logger.Info(fmt.Sprintf("POST /heartbeat -> 200 (%s)", time.Since(start).String()))
-
 	writer.Write(jsonResponse)
+	logger.Info(fmt.Sprintf("POST /heartbeat -> 200 (%s)", time.Since(start).String()))
 }
