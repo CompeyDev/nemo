@@ -80,7 +80,7 @@ func UpdateCheckInTime(id string) error {
 
 }
 
-func CheckInstanceExistence(id string) (bool) {
+func CheckInstanceExistence(id string) bool {
 	client, connectErr := ConnectDB()
 
 	if connectErr != nil {
@@ -123,4 +123,28 @@ func Test() {
 	}
 
 	fmt.Println(d)
+}
+
+func GetConnectedInstances() (int, error) {
+	client, connectErr := ConnectDB()
+
+	if connectErr != nil {
+		DisconnectDB(client)
+		logger.CustomError("DB_Manager", "Failed to initialize connection with SQLite database.")
+		logger.CustomError("DB_MANAGER", fmt.Sprint(connectErr))
+		// A -1 return value signifies an error.
+		return -1, connectErr
+	}
+
+	ctx := context.Background()
+
+	query, err := client.PayloadClient.FindMany().Exec(ctx)
+
+	if err != nil {
+		DisconnectDB(client)
+		logger.CustomError("DB_MANAGER", "Failed to fetch connected instances information.")
+		return -1, err
+	}
+
+	return len(query), nil
 }

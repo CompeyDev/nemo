@@ -69,7 +69,6 @@ func InitializeConnection() {
 
 func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	start := time.Now()
-
 	errorResponse := HeartbeatResponse{
 		Status: 400,
 		Data: map[string]any{
@@ -114,8 +113,8 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	type RequestBody struct {
-		Id   	string
-		Name 	string
+		Id   string
+		Name string
 	}
 
 	var requestBody RequestBody
@@ -138,7 +137,7 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	// 	writer.Write(jsonErrorResponse2)
 	// 	return
 	// }
-	
+
 	instanceExists := database.CheckInstanceExistence(requestBody.Id)
 
 	if instanceExists {
@@ -146,7 +145,6 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	} else if !instanceExists {
 		database.CreatePayloadInstance(requestBody.Id, requestBody.Name)
 	}
-
 
 	defer request.Body.Close()
 
@@ -156,12 +154,19 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 		writer.Write(jsonErrorResponse2)
 		return
 	}
+	connectedInstances, fetchErr := database.GetConnectedInstances()
+
+	if fetchErr != nil {
+		writer.WriteHeader(502)
+		writer.Write(jsonErrorResponse2)
+		return
+	}
 
 	Response := HeartbeatResponse{
-		Status: 502,
+		Status: 200,
 		Data: map[string]any{
 			"uptime":           nil,
-			"connectedClients": nil,
+			"connectedClients": connectedInstances,
 		},
 	}
 
