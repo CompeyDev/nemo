@@ -48,8 +48,7 @@ Options:
         if args[0] == "generate":
             print("Generating payload...")
     elif args == None and len(args) == 0:
-        exit(0)
-
+        print("")
 
 commandsRegistry = {
     "help": helpHandler,
