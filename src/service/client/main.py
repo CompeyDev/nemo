@@ -3,15 +3,12 @@ import sys
 
 
 from shutil import copyfile
-from getch import getch
 from signal import signal, SIGINT
 from lib.prependShell import prependInterface
 
-prependInterface()
 
 userHistory = []
 
-# need to type again in future
 
 def helpHandler(args: [] or None = None):
     commands = {
@@ -31,11 +28,8 @@ def helpHandler(args: [] or None = None):
         commandsMenu = f"{args[0]} - {commands[args[0]]}\n"
         print(commandsMenu)
 
-# broken code pls fix
-
 
 def payloadHandler(args: [] or None = None):
-    print(args)
     if args is None or args == [] or args[0] == "-h" or args[0] == "help":
         print("""
 Usage: payload [command] [arguments]
@@ -50,8 +44,11 @@ Options:
             
         """)
 
-    if args[0] == "generate":
-        print("Generating payload...")
+    if args != None and len(args) != 0:
+        if args[0] == "generate":
+            print("Generating payload...")
+    elif args == None and len(args) == 0:
+        exit(0)
 
 
 commandsRegistry = {
@@ -76,29 +73,21 @@ def runCommand(command, args):
 
     userHistory.append(f"{command} {argsStr}".strip())
 
-    prependInterface()
-
-    main()
-
 
 def main():
-    command = input("")
+    while True:
+        prependInterface()
+        command = input("")
 
-    if command != ("" or None):
-        try:
-            argv = command.split(" ")
-            command = argv[0]
-            argv.remove(command)
-            runCommand(command, argv)
-        except:
-            print("Unknown command.")
-            helpHandler()
-            prependInterface()
-
-    char = getChar()
-    if char == 'up':
-        handleHistory()
-
+        if command != ("" or None):
+            try:
+                argv = command.split(" ")
+                command = argv[0]
+                argv.remove(command)
+                runCommand(command, argv)
+            except:
+                print("Unknown command.")
+                helpHandler()
 
 def handleClose(sig, frame):
     print("\nQuitting client.")
@@ -111,5 +100,4 @@ def handleHistory():
 
 
 signal(SIGINT, handleClose)
-signal
 main()
