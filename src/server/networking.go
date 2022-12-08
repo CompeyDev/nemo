@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -14,15 +13,17 @@ import (
 )
 
 // TODO: Use sockets instead of http
-// REDO: Fix superfluous calls.
 
 type HeartbeatResponse struct {
 	Status int            `json:"status"`
 	Data   map[string]any `json:"data"`
 }
 
+type QueueResponse = HeartbeatResponse
+
 var Registry = map[string]func(http.ResponseWriter, *http.Request){
 	"heartbeat": heartbeatHandler,
+	"addQueue":  QueueHandler,
 }
 
 func GetHandler(toFetchHandler string) func(http.ResponseWriter, *http.Request) {
@@ -82,7 +83,7 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	jsonErrorResponse, errorMarshalErr := json.Marshal(errorResponse)
 
 	if errorMarshalErr != nil {
-		log.Fatal("POST /heartbeat -> Failed to encode response, Status Code 502")
+		logger.Error("POST /heartbeat -> Failed to encode response, Status Code 502")
 		writer.WriteHeader(502)
 		writer.Write(jsonErrorResponse)
 		return
@@ -181,4 +182,5 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	writer.WriteHeader(200)
 	writer.Write(jsonResponse)
 	logger.Info(fmt.Sprintf("POST /heartbeat -> 200 (%s)", time.Since(start).String()))
+	return
 }

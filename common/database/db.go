@@ -148,3 +148,30 @@ func GetConnectedInstances() (int, error) {
 
 	return len(query), nil
 }
+
+func AddToPayloadQueue(taskType string, payloadId string) error {
+	client, connectErr := ConnectDB()
+
+	if connectErr != nil {
+		DisconnectDB(client)
+		logger.CustomError("DB_Manager", "Failed to initialize connection with SQLite database.")
+		logger.CustomError("DB_MANAGER", fmt.Sprint(connectErr))
+		return connectErr
+	}
+
+	ctx := context.Background()
+
+	_, err := client.PayloadQueue.CreateOne(
+		db.PayloadQueue.AssocID.Set(payloadId),
+		db.PayloadQueue.Type.Set(taskType),
+		db.PayloadQueue.IsCompleted.Set(false),
+	).Exec(ctx)
+
+	if err != nil {
+		DisconnectDB(client)
+		logger.CustomError("DB_MANAGER", "Failed to fetch connected instances information.")
+		return err
+	}
+
+	return nil
+}

@@ -15,3 +15,11 @@ model PayloadClient {
     name        String
     lastCheckIn DateTime @updatedAt
 }
+
+model PayloadQueue {
+    id          String   @id @default(uuid())
+    assocId     String
+    type        String
+    createdAt   DateTime @updatedAt
+    isCompleted Boolean
+}
