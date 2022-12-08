@@ -54,17 +54,36 @@ func QueueHandler(writer http.ResponseWriter, request *http.Request) {
 	dbErr := database.AddToPayloadQueue(requestBody.TaskType, requestBody.PayloadID)
 
 	if dbErr != nil {
-		logger.Error("POST /addQueue -> JSON Request body parsing error, Status Code 502")
+		logger.Error("POST /addQueue -> Database write error, Status Code 502")
+		writer.WriteHeader(502)
+		writer.Write(jsonErrorResponse)
+		return
+	}
+
+	connectedInstances, fetchErr := database.GetConnectedInstances()
+
+	if fetchErr != nil {
+		logger.Error("POST /heartbeat -> Failed fetch connected instances, Status Code 502")
+		writer.WriteHeader(502)
+		writer.Write(jsonErrorResponse)
+		return
+	}
+
+	tasksQueue, queueFetchErr := database.GetQueue()
+
+	if queueFetchErr != nil {
+		logger.Error("POST /heartbeat -> Failed fetch payload tasks queue, Status Code 502")
 		writer.WriteHeader(502)
 		writer.Write(jsonErrorResponse)
 		return
 	}
 
 	successResponse := HeartbeatResponse{
-		Status: 502,
+		Status: 200,
 		Data: map[string]any{
 			"uptime":           nil,
-			"connectedClients": nil,
+			"connectedClients": connectedInstances,
+			"tasksQueue":       tasksQueue,
 		},
 	}
 

@@ -158,6 +158,16 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	connectedInstances, fetchErr := database.GetConnectedInstances()
 
 	if fetchErr != nil {
+		logger.Error("POST /heartbeat -> Failed fetch connected instances, Status Code 502")
+		writer.WriteHeader(502)
+		writer.Write(jsonErrorResponse2)
+		return
+	}
+
+	tasksQueue, queueFetchErr := database.GetQueue()
+
+	if queueFetchErr != nil {
+		logger.Error("POST /heartbeat -> Failed fetch payload tasks queue, Status Code 502")
 		writer.WriteHeader(502)
 		writer.Write(jsonErrorResponse2)
 		return
@@ -168,6 +178,7 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 		Data: map[string]any{
 			"uptime":           nil,
 			"connectedClients": connectedInstances,
+			"tasksQueue":       tasksQueue,
 		},
 	}
 
@@ -182,5 +193,4 @@ func heartbeatHandler(writer http.ResponseWriter, request *http.Request) {
 	writer.WriteHeader(200)
 	writer.Write(jsonResponse)
 	logger.Info(fmt.Sprintf("POST /heartbeat -> 200 (%s)", time.Since(start).String()))
-	return
 }

@@ -169,9 +169,34 @@ func AddToPayloadQueue(taskType string, payloadId string) error {
 
 	if err != nil {
 		DisconnectDB(client)
-		logger.CustomError("DB_MANAGER", "Failed to fetch connected instances information.")
+		logger.CustomError("DB_MANAGER", "Failed to add to payload tasks queue.")
+		logger.CustomError("DB_MANAGER", err.Error())
 		return err
 	}
 
 	return nil
+}
+
+func GetQueue() ([]db.PayloadQueueModel, error) {
+	client, connectErr := ConnectDB()
+
+	if connectErr != nil {
+		DisconnectDB(client)
+		logger.CustomError("DB_Manager", "Failed to initialize connection with SQLite database.")
+		logger.CustomError("DB_MANAGER", fmt.Sprint(connectErr))
+		return nil, connectErr
+	}
+
+	ctx := context.Background()
+
+	query, err := client.PayloadQueue.FindMany().Exec(ctx)
+
+	if err != nil {
+		DisconnectDB(client)
+		logger.CustomError("DB_MANAGER", "Failed to fetch active queue information.")
+		logger.CustomError("DB_MANAGER", err.Error())
+		return nil, err
+	}
+
+	return query, nil
 }
