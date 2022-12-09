@@ -1,8 +1,3 @@
-echo "[*] Installing gccgo toolchain..."
+echo -e "\x1b[34m[\u001b[0m\x1b[31m*\x1b[34m\x1b[34m]\u001b[0m Installing gccgo... (This only works for apt-based distros!)"
 
-git clone --branch devel/gccgo git://gcc.gnu.org/git/gcc.git gccgo
-mkdir data
-cd data
-../gccgo/configure --prefix=/opt/gccgo --enable-languages=c,c++,go --disable-multilib
-make > /dev/null 2>&1
-make install > /dev/null 2>&1
+sudo apt install gccgo -y

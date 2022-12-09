@@ -1,6 +1,6 @@
 module github.com/CompeyDev/nemo
 
-go 1.19
+go 1.18
 
 require (
 	github.com/gookit/color v1.5.2
