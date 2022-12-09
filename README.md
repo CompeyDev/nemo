@@ -8,8 +8,8 @@ Nemo is yet another post-exploitation framework, focused around collaboration. C
 # Installation & Usage
 Nemo consists of a number of components, namely:
 - [**client**](./src/service/client) - A CLI shell utility to manage payloads and communicate with operators. The main interface you will be interacting with. 
-- [**server**](./src/server) - The remote command and control server which will be the main access point into the payloads. The daemon usually manages the server. 
-- [**daemon**](./src/service/daemon) - The primary access point for the CLI to communicate with the server; a websocket API server. 
+- [**server**](./src/server) - The remote command and control server (a websocket API server) which will be the main access point into the payloads. The daemon usually manages the server. 
+- [**daemon**](./src/service/daemon) - The primary access point for the CLI to communicate with the server; acts as an API client. 
 - [**payload**](./src/service/payload) - Payload generation scripts and templates. These are the payloads that are slightly modified during generation.
 
 # Built With
