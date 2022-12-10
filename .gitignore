@@ -9,8 +9,8 @@
 *.dylib
 
 # Database files
-prisma/db/
-prisma/migrations
+db/
+migrations/
 *.db
 
 # Test binary, built with `go test -c`

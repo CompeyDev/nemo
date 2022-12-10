@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/CompeyDev/nemo/common/logger"
-	"github.com/CompeyDev/nemo/prisma/db"
+	"github.com/CompeyDev/nemo/db"
 )
 
 func ConnectDB() (*db.PrismaClient, error) {
@@ -143,6 +143,7 @@ func GetConnectedInstances() (int, error) {
 	if err != nil {
 		DisconnectDB(client)
 		logger.CustomError("DB_MANAGER", "Failed to fetch connected instances information.")
+		logger.CustomError("DB_MANAGER", err.Error())
 		return -1, err
 	}
 
