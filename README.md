@@ -14,3 +14,5 @@ Nemo consists of a number of components, namely:
 
 # Built With
 ![](https://skillicons.dev/icons?i=go,python,rust)
+
+##### Heavily inspired by [Havoc](https://github.com/HavocFramework/Havoc), you should check it out :)
