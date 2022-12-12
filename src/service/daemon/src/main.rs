@@ -1,8 +1,10 @@
-#![no_main]
+// #![no_main]
 use std::error::Error;
 use reqwest;
+mod ngrok; 
 
-async fn add_queue(taskType: string, task: string) -> Result<(), Box<dyn Error>> {
+async fn add_queue(task_type: String, task: String) -> Result<(), Box<dyn Error>> {
+    println!("daemon.rs :: added new task to tasks pool");
     const CONNECTION_URI: &'static str = "http://0.0.0.0:40043";
     let client = reqwest::Client::new(); 
     
@@ -11,4 +13,8 @@ async fn add_queue(taskType: string, task: string) -> Result<(), Box<dyn Error>>
         .await?;
     
     Ok(())
+}
+
+fn main() {
+    ngrok::main().unwrap();
 }

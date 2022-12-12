@@ -1,1 +1,6 @@
+# Compiled outputs
 /target
+
+# Downloaded runtimes
+ngrok
+ngrok.tgz
