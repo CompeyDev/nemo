@@ -11,3 +11,6 @@ ngrok = "0.5.0"
 url = "2.3.1"
 tar = "0.4.38"
 flate2 = "1.0.25"
+
+[dependencies.logger]
+path = "./utils/logger"

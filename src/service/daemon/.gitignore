@@ -1,5 +1,6 @@
 # Compiled outputs
 /target
+daemon
 
 # Downloaded runtimes
 ngrok
