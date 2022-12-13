@@ -1,6 +1,6 @@
 <img src="https://user-images.githubusercontent.com/74418041/206620270-75cd9cf3-63c4-4b1c-8611-a4acf05ed1c0.gif" width=50%>
 
-> A Remote Access Trojan & Post-Exploitation Framework 
+> A Remote Access Tool & Post-Exploitation Framework 
 
 # Introduction
 Nemo is yet another post-exploitation framework, focused around collaboration. Collaboration among multiple operators is managed by a "swarm", which can be remotely managed from the command and control. Payloads are *not* dynamically generated; nemo is not intended to be used in production. Do keep in mind that I'm fairly new to malware dev, and this is just one of those shower thought projects that magically came to life.
