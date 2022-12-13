@@ -1,0 +1,5 @@
+rd_enabled = true
+fleet_id = "0d093726-05b1-4c06-bbea-82efbe12e0d7"
+
+[build]
+sccache = "/home/jay/.cargo/bin/sccache"
