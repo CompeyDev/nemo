@@ -5,3 +5,6 @@ daemon
 # Downloaded runtimes
 ngrok
 ngrok.tgz
+
+# Temporary files
+*.bak

@@ -7,10 +7,13 @@ edition = "2021"
 
 [dependencies]
 reqwest = { version = "0.11.13", features = ["blocking", "json"] }
-ngrok = "0.5.0"
+# ngrok = { git = "https://github.com/ngrok/ngrok-rs" }
+ngrok = "0.6.0"
 url = "2.3.1"
 tar = "0.4.38"
 flate2 = "1.0.25"
+anyhow = "1.0.66"
+ctrlc = { version = "3.2.4", features = ["termination"] }
 
 [dependencies.logger]
 path = "./utils/logger"

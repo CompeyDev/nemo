@@ -40,7 +40,8 @@ pub fn error(log: &str, should_panic: bool) -> Option<String>{
     let formatted_time = formatted_time_vec[0];
     let to_log = format!("{} {} :: {}", formatted_time.truecolor(128, 128, 128), "error".red(), log);
     if should_panic == true {
-        panic!("{to_log}");
+        println!("{to_log}");
+        panic!();
     } else {
         return Some(to_log);
     }

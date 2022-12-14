@@ -1,9 +1,11 @@
 use core::time;
-use std::{env, fs::File, io::{self, ErrorKind}, process::{Command, Stdio}};
+use std::{env, fs::File, io::{self, ErrorKind}, process::{Command, Stdio, exit}, sync::mpsc::channel};
 use reqwest;
-use ngrok;
+use ngrok::{self, Tunnel};
 use url::Url;
+use ctrlc;
 use tar::Archive;
+use logger;
 use flate2::read::GzDecoder; 
 
 pub fn main() {
@@ -26,18 +28,32 @@ pub fn main() {
         }
     }
 
-    initialize_tunnel().unwrap();   
+    let conn = initialize_tunnel().unwrap();
+    
+    let (tx, rx) = channel();
+
+    ctrlc::set_handler(move || { tx.send(()).unwrap(); }).expect(logger::error_return("failed to set exit handler").as_str());
+
+    rx.recv().expect("failed to gracefully exit");
+    // Hackily "clear" the line
+    print!("\r  ");
+
+    // Overwrite the empty spaces
+    println!("\r{}", logger::info_return("Gracefully exiting daemon..."));
+
+    drop(conn);
+    
+    exit(0);
 }
 
-fn initialize_tunnel() -> std::io::Result<()>{
+fn initialize_tunnel() -> std::io::Result<Tunnel>{
     // Get the ngrok API key from the user's environment variables.
 
     let ngrok_api_key = match env::var("NGROK_API_KEY") {
         Ok(api_key) => api_key,
-        Err(_e) => panic!("ngrok.rs :: Failed to fetch ngrok API key, do you have it set in environment variables?")
+        Err(_e) => panic!("{}", logger::error_return("Failed to fetch ngrok API key, do you have it set in environment variables?"))
     };
 
-    println!("ngrok.rs :: Using ngrok API token {ngrok_api_key}");
     logger::info(format!("Using ngrok API token {}", ngrok_api_key).as_str(), true);
 
     // Authenticate into the CLI, using the above API Key.
@@ -46,15 +62,16 @@ fn initialize_tunnel() -> std::io::Result<()>{
     // Start the tunnel.
     let tunnel = ngrok::builder()
         .executable("./ngrok")
+        .https()
         .port(40043)
         .run()?;
+    
+    let r: Url = tunnel.public_url_unchecked().to_owned();
+    let public_url = r.domain().unwrap();
 
-    let public_url: Url = tunnel.https()?.to_owned();
+    logger::info(format!("Tunnel is open at {:?}", public_url).as_str(), true);
 
-    println!("Tunnel is open at {:?}", public_url);
-
-
-    Ok(())
+    Ok(tunnel)
 }
 
 fn untar_archive() -> Result<(), std::io::Error> {
