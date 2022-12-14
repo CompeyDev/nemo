@@ -1,0 +1,6 @@
+# Compiled outputs
+target/
+libshared.so
+
+# Tests
+test.py
