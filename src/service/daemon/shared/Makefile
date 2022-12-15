@@ -1,4 +1,4 @@
-Daemon: src/lib.rs
+Shared: src/lib.rs
 	@echo -e "\x1b[34m[\u001b[0m\x1b[31m*\x1b[34m\x1b[34m]\u001b[0m Building daemon shared libraries..."
 	@echo -e "\x1b[34m[\u001b[0m\x1b[31m#\x1b[34m\x1b[34m]\u001b[0m cargo build --release"
 	@cargo build --release

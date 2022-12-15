@@ -8,9 +8,13 @@ edition = "2021"
 
 [dependencies]
 reqwest = { version = "0.11.13", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
 
 [dependencies.logger]
 path = "../utils/logger"
+
+[dependencies.foreign_string]
+path = "../utils/foreign_string"
 
 [lib]
 crate-type = ["cdylib"]
