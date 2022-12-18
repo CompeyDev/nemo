@@ -14,7 +14,7 @@ def helpHandler(args: [] or None = None):
     commands = {
         "help": "Display this help message.",
         "swarm": "Perform swarm related operations.",
-        "payload": "Perform payload generation and other payload operations."
+        "payload": "Perform payload generation and other payload operations.",
     }
 
     commandsMenu = ""
@@ -31,7 +31,8 @@ def helpHandler(args: [] or None = None):
 
 def payloadHandler(args: [] or None = None):
     if args is None or args == [] or args[0] == "-h" or args[0] == "help":
-        print("""
+        print(
+            """
 Usage: payload [command] [arguments]
 
 Commands:
@@ -42,7 +43,8 @@ Options:
     -o, --obfuscate  Whether to obfuscate the payload or not.
     -h, --help       Display this help menu.
             
-        """)
+        """
+        )
 
     if args != None and len(args) != 0:
         if args[0] == "generate":
@@ -50,16 +52,16 @@ Options:
     elif args == None and len(args) == 0:
         print("")
 
-commandsRegistry = {
-    "help": helpHandler,
-    "payload": payloadHandler
-}
+
+commandsRegistry = {"help": helpHandler, "payload": payloadHandler}
 
 
 def getChar():
     first_char = getch()
-    if first_char == '\x1b':
-        return {'[A': 'up', '[B': 'down', '[C': 'right', '[D': 'left'}[getch() + getch()]
+    if first_char == "\x1b":
+        return {"[A": "up", "[B": "down", "[C": "right", "[D": "left"}[
+            getch() + getch()
+        ]
     else:
         return first_char
 
@@ -87,6 +89,7 @@ def main():
             except:
                 print("Unknown command.")
                 helpHandler()
+
 
 def handleClose(sig, frame):
     print("\nQuitting client.")
