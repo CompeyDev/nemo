@@ -1,6 +1,10 @@
 # Compiled outputs
 target/
 libshared.so
+*.so
 
 # Tests
 test.py
+
+# Temporary files
+*.bak

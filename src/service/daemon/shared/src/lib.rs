@@ -1,37 +1,51 @@
-use std::collections::HashMap;
-use std::error::Error;
-use reqwest;
-use logger;
-use libc;
-use foreign_string::FString;
+use libc::{c_char, size_t};
+use std::{string::String, ffi::CStr, mem::forget, collections::HashMap};
+use ureq;
+use std::time::Duration;
 
-// &'static str is buggy with async functions, so using &str instead
+// Initial strategy: https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=b4bd989d2765453faf81424c9b8a4769
+
 #[no_mangle]
-pub async extern fn add_queue(connection_uri: *const u8, connection_uri_size: usize, payload_id: *const u8, payload_id_size: usize, task_type: *const u8, task_type_size: usize, task: *const u8, task_size: usize) -> Result<(), Box<dyn Error>> {
-    // Convert to C compatible strings
-
-    let sconn_uri = unsafe { FString::new(connection_uri, connection_uri_size) };
-    let spayload_id = unsafe { FString::new(payload_id, payload_id_size) };
-    let stask_type = unsafe { FString::new(task_type, task_type_size) };
-    let stask = unsafe { FString::new(task, task_size) };
-
-    // Prepare request body
-    let mut body = HashMap::new();
-    body.insert("TaskType", stask_type.as_str());
-    body.insert("TaskName", stask.as_str());
-    body.insert("PayloadID", spayload_id.as_str());
-
-    // logger::info("adding new task to tasks pool", true);
-
-    // Make the request
-    reqwest::Client::new()
-        .post(format!("{}/{}", sconn_uri.as_str(), "addQueue"))
-            .json(&body)
-            .send()
-            .await
-            .expect(logger::error_return("failed to add task to tasks pool").as_str());
+pub extern "C" fn add_queue(connection_uri: *const c_char, connection_uri_size: size_t, payload_id: *const c_char, payload_id_size: size_t, task_type: *const c_char, task_type_size: size_t, task: *const c_char, task_size:size_t) {
+    // Convert raw C strings into Rust strings
+    logger::info("start", true);
+    let sconnection_uri = unsafe { String::from_raw_parts(connection_uri as *mut u8, connection_uri_size, 20) };
+    let spayload_id = unsafe { String::from_raw_parts(payload_id as *mut u8, payload_id_size, 20) };
+    let stask_type = unsafe { String::from_raw_parts(task_type as *mut u8, task_type_size, 20) };
+    let stask = unsafe { String::from_raw_parts(task as *mut u8, task_size, 20) };
     
-    // logger::info("successfully added task to tasks pool", true);
+    println!("{sconnection_uri}");
 
-    Ok(())
+    logger::info("strings", true);
+    // Prepare request body
+    
+    let tt = spayload_id.as_str();
+    let tn = stask.as_str();
+    let pi = spayload_id.as_str();
+
+    logger::info("as strings", true);
+
+    // TODO: coerce json_str to &str
+
+    let json_str = f "\"TaskType\": {stask_type}, \"Task\": {stask}, \"PayloadID\": {spayload_id}";
+    println!("{:#?}", json_str);
+
+    if Some(json_str) == None {
+       ureq::post(&sconnection_uri)
+        .set("content-type", "application/json")
+        .send_string(&json_str)
+        .expect("failed to parse into string"); 
+    }
+    
+
+
+    logger::info("creates body", true);
+        
+    // Prevent Rust from deallocating these pointers
+
+    forget(sconnection_uri);
+    forget(spayload_id);
+    forget(stask_type);
+    forget(stask);  
+    logger::info("success!", true);
 }
