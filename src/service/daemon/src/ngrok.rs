@@ -1,5 +1,5 @@
 use core::time;
-use std::{env, fs::File, io::{self, ErrorKind}, process::{Command, Stdio, exit}, sync::mpsc::channel};
+use std::{env, fs::File, io::{self, ErrorKind}, process::{Command, Stdio, exit}, sync::mpsc::channel, fmt::Error};
 use reqwest;
 use ngrok::{self, Tunnel};
 use url::Url;
@@ -8,7 +8,7 @@ use tar::Archive;
 use logger;
 use flate2::read::GzDecoder; 
 
-pub fn main() {
+pub fn main() -> Result<String, std::io::Error> {
     const LINUX_DOWNLOAD_URL: &'static str = "https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz";
     
     // TODO: fix trait bounds for resp.bytes()
@@ -17,7 +17,7 @@ pub fn main() {
         logger::info("Installing ngrok runtime...", true);
         let resp = client.get(&*LINUX_DOWNLOAD_URL).send().expect(logger::error_return("failed to request ngrok runtime").as_str());
         let mut out = File::create("ngrok.tgz").expect(logger::error_return("failed to write ngrok runtime").as_str());
-        io::copy(&mut resp.bytes().expect("hi"), &mut out).expect("failed to write ngrok runtime");
+        // io::copy(&mut resp.bytes().expect("hi"), &mut out).expect("failed to write ngrok runtime");
     }
 
     match untar_archive() {
@@ -30,8 +30,17 @@ pub fn main() {
 
     let conn = initialize_tunnel().unwrap();
     
-    let (tx, rx) = channel();
+    // Handle errors first, then use the unchecked method to actually return a result
 
+    conn.public_url()?.to_owned();
+
+    let conn_uri = conn.public_url_unchecked();
+    conn_uri.domain().ok_or_else(|| "failed to get tunnel domain");
+
+
+
+    let (tx, rx) = channel();
+    
     ctrlc::set_handler(move || { tx.send(()).unwrap(); }).expect(logger::error_return("failed to set exit handler").as_str());
 
     rx.recv().expect("failed to gracefully exit");

@@ -19,3 +19,10 @@ async fn add_queue(task_type: String, task: String) -> Result<(), Box<dyn Error>
 fn main() {
     ngrok::main();
 }
+
+
+pub fn get_tunnel() -> Result<String, std::io::Error> {
+    let tunnel_uri = ngrok::main()?;
+    
+    Ok(tunnel_uri)
+}

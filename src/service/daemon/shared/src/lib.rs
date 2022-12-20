@@ -2,6 +2,7 @@ use libc::{c_char, size_t};
 use std::{string::String, ffi::CStr, mem::forget, collections::HashMap};
 use ureq;
 use std::time::Duration;
+use daemon;
 
 // Initial strategy: https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=b4bd989d2765453faf81424c9b8a4769
 
@@ -37,8 +38,6 @@ pub extern "C" fn add_queue(connection_uri: *const c_char, connection_uri_size: 
         .expect("failed to parse into string"); 
     }
     
-
-
     logger::info("creates body", true);
         
     // Prevent Rust from deallocating these pointers
@@ -48,4 +47,9 @@ pub extern "C" fn add_queue(connection_uri: *const c_char, connection_uri_size: 
     forget(stask_type);
     forget(stask);  
     logger::info("success!", true);
+}
+
+#[no_mangle]
+pub extern "C" fn get_tunnel() {
+    daemon::main();
 }
