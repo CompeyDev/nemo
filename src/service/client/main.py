@@ -10,6 +10,32 @@ from lib.prependShell import prependInterface
 userHistory = []
 
 
+payloadHelpMenu = """
+Usage: payload [command] [arguments]
+
+Commands:
+    generate         Dynamically generates a payload 
+
+Options:
+    -O, --output     Output filename
+    -o, --obfuscate  Whether to obfuscate the payload or not.
+    -h, --help       Display this help menu.
+            
+        """
+
+payloadGenHelpMenu = """
+Usage: payload generate [ARGUMENTS]
+
+Arguments:
+    name     (REQUIRED)  Readable identifier for the payload to be generated. 
+    platform (REQUIRED)  Platform the payload is generated for.
+
+Options:
+    -O, --output     Output filename
+    -o, --obfuscate  Whether to obfuscate the payload or not.
+    -h, --help       Display this help menu.
+                """
+
 def helpHandler(args: [] or None = None):
     commands = {
         "help": "Display this help message.",
@@ -31,24 +57,20 @@ def helpHandler(args: [] or None = None):
 
 def payloadHandler(args: [] or None = None):
     if args is None or args == [] or args[0] == "-h" or args[0] == "help":
-        print(
-            """
-Usage: payload [command] [arguments]
-
-Commands:
-    generate         Dynamically generates a payload 
-
-Options:
-    -O, --output     Output filename
-    -o, --obfuscate  Whether to obfuscate the payload or not.
-    -h, --help       Display this help menu.
-            
-        """
-        )
+        print(payloadHelpMenu)
 
     if args != None and len(args) != 0:
         if args[0] == "generate":
-            print("Generating payload...")
+            opt = args[1]
+            
+            if opt  == (" " or ""):
+                print("Please provide the required options.")
+                print(payloadGenHelpMenu)
+            if opt == ("-h" or "--help"):
+                print(payloadGenHelpMenu)
+            if opt.__contains__("name"):
+                print('TODO')
+                
     elif args == None and len(args) == 0:
         print("")
 
@@ -83,12 +105,18 @@ def main():
         if command != ("" or None):
             try:
                 argv = command.split(" ")
-                command = argv[0]
+                command = argv[:][0]
                 argv.remove(command)
                 runCommand(command, argv)
             except:
-                print("Unknown command.")
-                helpHandler()
+                if (command == "payload") and (argv[1] != ("-h" or "--help")):
+                    print("Please provide the required options.")
+                    print(payloadGenHelpMenu)
+                elif (argv[1] == ("-h" or "--help")):
+                    print("")
+                else:
+                    print("Unknown command.")
+                    helpHandler()
 
 
 def handleClose(sig, frame):

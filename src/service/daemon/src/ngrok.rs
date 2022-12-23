@@ -78,7 +78,7 @@ fn initialize_tunnel() -> std::io::Result<Tunnel>{
     let r: Url = tunnel.public_url_unchecked().to_owned();
     let public_url = r.domain().unwrap();
 
-    logger::info(format!("Tunnel is open at {:?}", public_url).as_str(), true);
+    logger::info(format!("Tunnel is open at {:}", public_url).as_str(), true);
 
     Ok(tunnel)
 }
