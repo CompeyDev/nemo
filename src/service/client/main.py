@@ -1,5 +1,6 @@
 import time
 import sys
+import os
 
 
 from shutil import copyfile
@@ -62,14 +63,17 @@ def payloadHandler(args: [] or None = None):
     if args != None and len(args) != 0:
         if args[0] == "generate":
             opt = args[1]
-            
             if opt  == (" " or ""):
                 print("Please provide the required options.")
                 print(payloadGenHelpMenu)
             if opt == ("-h" or "--help"):
                 print(payloadGenHelpMenu)
             if opt.__contains__("name"):
-                print('TODO')
+                print("t")
+                copyfile("../daemon/daemon", "./daemon")
+                out = os.popen("./daemon")
+                print(out.read())
+                
                 
     elif args == None and len(args) == 0:
         print("")
@@ -109,11 +113,11 @@ def main():
                 argv.remove(command)
                 runCommand(command, argv)
             except:
-                if (command == "payload") and (argv[1] != ("-h" or "--help")):
+                if (command == "payload") and len(argv) >= 2 and not (argv[1].__contains__("name")):
                     print("Please provide the required options.")
                     print(payloadGenHelpMenu)
-                elif (argv[1] == ("-h" or "--help")):
-                    print("")
+                elif (command == "payload") and len(argv) >= 2 and (argv[1] == ("-h" or "--help" or "" or " ")):
+                    print(payloadGenHelpMenu)
                 else:
                     print("Unknown command.")
                     helpHandler()
