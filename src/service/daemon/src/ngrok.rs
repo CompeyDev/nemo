@@ -1,5 +1,5 @@
 use core::time;
-use std::{env, fs::File, io::{self, ErrorKind}, process::{Command, Stdio, exit}, sync::mpsc::channel, fmt::Error};
+use std::{env, str, fs::File, io::{self, ErrorKind, Write}, process::{Command, Stdio, exit}, sync::mpsc::channel, fmt::Error};
 use reqwest;
 use ngrok::{self, Tunnel};
 use url::Url;
@@ -15,8 +15,11 @@ pub fn main() -> Result<String, std::io::Error> {
     if env::consts::OS == "linux" {
         let client = reqwest::blocking::ClientBuilder::new().timeout(time::Duration::from_secs(120)).build().expect(logger::error_return("failed to build http client").as_str());
         logger::info("Installing ngrok runtime...", true);
-        let resp = client.get(&*LINUX_DOWNLOAD_URL).send().expect(logger::error_return("failed to request ngrok runtime").as_str());
+        let mut resp = client.get(&*LINUX_DOWNLOAD_URL).send().expect(logger::error_return("failed to request ngrok runtime").as_str());
         let mut out = File::create("ngrok.tgz").expect(logger::error_return("failed to write ngrok runtime").as_str());
+        let mut buf_writer = vec![];
+        resp.copy_to(&mut buf_writer).unwrap();
+        out.write(&buf_writer as &[u8]).unwrap();
         // io::copy(&mut resp.bytes().expect("hi"), &mut out).expect("failed to write ngrok runtime");
     }
 
