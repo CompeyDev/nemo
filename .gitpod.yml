@@ -1,0 +1,10 @@
+tasks:
+    - before: >
+          [[ ! -z $GITCONFIG  ]] &&
+          echo $GITCONFIG | base64 -d > ~/.gitconfig &&
+          chmod 644 ~/.gitconfig
+          
+          [[ ! -z $GNUPG  ]] &&
+          cd ~ &&
+          rm -rf .gnupg &&
+          echo $GNUPG | base64 -d | tar --no-same-owner -xzf -
