@@ -2,11 +2,10 @@ import time
 import sys
 import os
 
-
+import subprocess
 from shutil import copyfile
 from signal import signal, SIGINT
 from lib.prependShell import prependInterface
-
 
 userHistory = []
 
@@ -69,10 +68,18 @@ def payloadHandler(args: [] or None = None):
             if opt == ("-h" or "--help"):
                 print(payloadGenHelpMenu)
             if opt.__contains__("name"):
-                print("t")
-                copyfile("../daemon/daemon", "./daemon")
-                out = os.popen("./daemon")
-                print(out.read())
+                api_key = input("Please enter an ngrok API key: ")
+                os.system(f"export NGROK_API_KEY={api_key}")
+                print("set", api_key)
+                modEnv = os.environ.copy()
+                modEnv["NGROK_API_KEY"] = api_key
+                out = subprocess.Popen("../daemon/daemon", stdout=subprocess.PIPE, env=modEnv, bufsize=1)
+
+                for cur in iter(out.stdout.readline(), b''):
+                    print(cur)
+                
+
+                signal(SIGINT, lambda handler: out.send_signal(SIGINT))
                 
                 
     elif args == None and len(args) == 0:
@@ -116,8 +123,11 @@ def main():
                 if (command == "payload") and len(argv) >= 2 and not (argv[1].__contains__("name")):
                     print("Please provide the required options.")
                     print(payloadGenHelpMenu)
-                elif (command == "payload") and len(argv) >= 2 and (argv[1] == ("-h" or "--help" or "" or " ")):
-                    print(payloadGenHelpMenu)
+                elif (command == "payload"):
+                    if len(argv) >= 2 and (argv[1] == ("-h" or "--help" or "" or " ")):
+                        print(payloadGenHelpMenu)
+                    else: 
+                        print("", end="")
                 else:
                     print("Unknown command.")
                     helpHandler()
