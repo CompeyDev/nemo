@@ -73,16 +73,16 @@ def payload_handler(args: List[any] or None = None):
                 api_key = input("Please enter an ngrok API key: ")
                 # os.system(f"export NGROK_API_KEY={api_key}")
                 # print("set", api_key)
-                modEnv = os.environ.copy()
-                modEnv["NGROK_API_KEY"] = api_key
+                mod_env = os.environ.copy()
+                mod_env["NGROK_API_KEY"] = api_key
                 
-                out = subprocess.Popen("../daemon/daemon", stdout=subprocess.PIPE, env=modEnv, bufsize=1)
+                out = subprocess.Popen("../daemon/daemon", stdout=subprocess.PIPE, env=mod_env, bufsize=1)
 
                 for cur in iter(out.stdout.readline(), b''):
                     print(cur)
                 
 
-                signal(SIGINT, lambda handler: out.send_signal(SIGINT))
+                signal(SIGINT, lambda _: out.send_signal(SIGINT))
                 
                 
     elif args == None and len(args) == 0:
