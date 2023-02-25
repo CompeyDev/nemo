@@ -7,12 +7,12 @@ import subprocess
 from shutil import copyfile
 from signal import signal, SIGINT
 from typing import List
-from lib.prependShell import prependInterface
+from lib.prepend_shell import prepend_interface
 
-userHistory = []
+user_history = []
 
 
-payloadHelpMenu = """
+payload_help_menu = """
 Usage: payload [command] [arguments]
 
 Commands:
@@ -25,7 +25,7 @@ Options:
             
         """
 
-payloadGenHelpMenu = """
+payload_gen_help_menu = """
 Usage: payload generate [ARGUMENTS]
 
 Arguments:
@@ -38,41 +38,41 @@ Options:
     -h, --help       Display this help menu.
                 """
 
-def helpHandler(args: List[any] or None = None):
+def help_handler(args: List[any] or None = None):
     commands = {
         "help": "Display this help message.",
         "swarm": "Perform swarm related operations.",
         "payload": "Perform payload generation and other payload operations.",
     }
 
-    commandsMenu = ""
+    commands_menu = ""
 
     for command, description in commands.items():
-        commandsMenu += f"{command} - {description}\n"
+        commands_menu += f"{command} - {description}\n"
 
     if args is None or args == []:
-        print("\n", commandsMenu)
+        print("\n", commands_menu)
     elif args is not None or args != []:
-        commandsMenu = f"{args[0]} - {commands[args[0]]}\n"
-        print(commandsMenu)
+        commands_menu = f"{args[0]} - {commands[args[0]]}\n"
+        print(commands_menu)
 
 
-def payloadHandler(args: List[any] or None = None):
+def payload_handler(args: List[any] or None = None):
     if args is None or args == [] or args[0] == "-h" or args[0] == "help":
-        print(payloadHelpMenu)
+        print(payload_help_menu)
 
     if args != None and len(args) != 0:
         if args[0] == "generate":
             opt = args[1]
             if opt  == (" " or ""):
                 print("Please provide the required options.")
-                print(payloadGenHelpMenu)
+                print(payload_gen_help_menu)
             if opt == ("-h" or "--help"):
-                print(payloadGenHelpMenu)
+                print(payload_gen_help_menu)
             if opt.__contains__("name"):
                 api_key = input("Please enter an ngrok API key: ")
                 # os.system(f"export NGROK_API_KEY={api_key}")
-                print("set", api_key)
+                # print("set", api_key)
                 modEnv = os.environ.copy()
                 modEnv["NGROK_API_KEY"] = api_key
                 
@@ -89,10 +89,10 @@ def payloadHandler(args: List[any] or None = None):
         print("")
 
 
-commandsRegistry = {"help": helpHandler, "payload": payloadHandler}
+commands_registry = {"help": help_handler, "payload": payload_handler}
 
 
-def getChar():
+def get_char():
     first_char = getch()
     if first_char == "\x1b":
         return {"[A": "up", "[B": "down", "[C": "right", "[D": "left"}[
@@ -102,18 +102,18 @@ def getChar():
         return first_char
 
 
-def runCommand(command, args):
-    commandsRegistry[command](args)
+def run_command(command, args):
+    commands_registry[command](args)
     argsStr = ""
     for arg in args:
         argsStr += arg
 
-    userHistory.append(f"{command} {argsStr}".strip())
+    user_history.append(f"{command} {argsStr}".strip())
 
 
 def main():
     while True:
-        prependInterface()
+        prepend_interface()
         command = input("")
 
         if command != ("" or None):
@@ -121,30 +121,30 @@ def main():
                 argv = command.split(" ")
                 command = argv[:][0]
                 argv.remove(command)
-                runCommand(command, argv)
+                run_command(command, argv)
             except:
                 if (command == "payload") and len(argv) >= 2 and not (argv[1].__contains__("name")):
                     print("Please provide the required options.")
-                    print(payloadGenHelpMenu)
+                    print(payload_gen_help_menu)
                 elif (command == "payload"):
                     if len(argv) >= 2 and (argv[1] == ("-h" or "--help" or "" or " ")):
-                        print(payloadGenHelpMenu)
+                        print(payload_gen_help_menu)
                     else: 
                         print("", end="")
                 else:
                     print("Unknown command.")
-                    helpHandler()
+                    help_handler()
 
 
-def handleClose(sig, frame):
+def handle_close(_sig, _frame):
     print("\nQuitting client.")
     sys.exit(0)
 
 
-def handleHistory():
-    orderedUserHistory = userHistory[::-1]
-    print(orderedUserHistory[len(orderedUserHistory) - 1], end="")
+def handle_history():
+    ordered_user_history = user_history[::-1]
+    print(ordered_user_history[len(ordered_user_history) - 1], end="")
 
 
-signal(SIGINT, handleClose)
+signal(SIGINT, handle_close)
 main()
