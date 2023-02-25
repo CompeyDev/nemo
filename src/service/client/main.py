@@ -26,7 +26,7 @@ Options:
         """
 
 payload_gen_help_menu = """
-Usage: payload generate [ARGUMENTS]
+Usage: payload generate [arguments]
 
 Arguments:
     name     (REQUIRED)  Readable identifier for the payload to be generated. 
