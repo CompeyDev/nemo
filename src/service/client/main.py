@@ -1,3 +1,4 @@
+from msvcrt import getch
 import time
 import sys
 import os
@@ -5,6 +6,7 @@ import os
 import subprocess
 from shutil import copyfile
 from signal import signal, SIGINT
+from typing import List
 from lib.prependShell import prependInterface
 
 userHistory = []
@@ -36,7 +38,7 @@ Options:
     -h, --help       Display this help menu.
                 """
 
-def helpHandler(args: [] or None = None):
+def helpHandler(args: List[any] or None = None):
     commands = {
         "help": "Display this help message.",
         "swarm": "Perform swarm related operations.",
@@ -55,7 +57,7 @@ def helpHandler(args: [] or None = None):
         print(commandsMenu)
 
 
-def payloadHandler(args: [] or None = None):
+def payloadHandler(args: List[any] or None = None):
     if args is None or args == [] or args[0] == "-h" or args[0] == "help":
         print(payloadHelpMenu)
 
@@ -69,10 +71,11 @@ def payloadHandler(args: [] or None = None):
                 print(payloadGenHelpMenu)
             if opt.__contains__("name"):
                 api_key = input("Please enter an ngrok API key: ")
-                os.system(f"export NGROK_API_KEY={api_key}")
+                # os.system(f"export NGROK_API_KEY={api_key}")
                 print("set", api_key)
                 modEnv = os.environ.copy()
                 modEnv["NGROK_API_KEY"] = api_key
+                
                 out = subprocess.Popen("../daemon/daemon", stdout=subprocess.PIPE, env=modEnv, bufsize=1)
 
                 for cur in iter(out.stdout.readline(), b''):
