@@ -1,3 +1,6 @@
+#### ⚠️ Nemo has now been discontinued, as I simply lack the resources to continue development on this project. Apologies!
+###### Forks are always welcome, however :)
+
 <img src="https://user-images.githubusercontent.com/74418041/206620270-75cd9cf3-63c4-4b1c-8611-a4acf05ed1c0.gif" width=50%>
 
 > A Remote Access Tool & Post-Exploitation Framework 
